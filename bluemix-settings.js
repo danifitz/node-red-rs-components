@@ -74,3 +74,18 @@ if (process.env.NODE_RED_USERNAME && process.env.NODE_RED_PASSWORD) {
         }
     }
 }
+// Commenting out because Cloudant name will be hardcoded
+//settings.couchAppname = VCAP_APPLICATION['application_name'];
+//var storageServiceName = process.env.NODE_RED_STORAGE_NAME || new RegExp("^"+settings.couchAppname+".cloudantNoSQLDB");
+var storageServiceName = 'nodeRedCloudantNoSQLDB';
+var couchService = appEnv.getService(storageServiceName);
+console.log('cloudant service is', couchService);
+
+if (!couchService) {
+    console.log("Failed to find Cloudant service");
+    if (process.env.NODE_RED_STORAGE_NAME) {
+        console.log(" - using NODE_RED_STORAGE_NAME environment variable: "+process.env.NODE_RED_STORAGE_NAME);
+    }
+    throw new Error("No cloudant service found");
+}    
+settings.couchUrl = couchService.credentials.url;
