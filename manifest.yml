@@ -5,4 +5,5 @@ declared-services:
 
 applications:
 - name: node-red-rs-components
-  service: nodeRedCloudantNoSQLDB
+  services: 
+  - nodeRedCloudantNoSQLDB
