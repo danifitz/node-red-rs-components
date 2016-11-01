@@ -8,7 +8,10 @@ module.exports = function(RED) {
     // The main node definition - most things happen in here
     function RSComponentsApiNode(n) {
         // Create a RED node
-        RED.nodes.createNode(this,n);
+        RED.nodes.createNode(this, n);
+        var apiKey = this.credentials.apikey;
+        var nodeKey = this.credentials.nodekey;
+        var skuNumber = this.credentials.skunumber;
 
         // Store local copies of the node configuration (as defined in the .html)
         this.topic = n.topic;
@@ -22,62 +25,56 @@ module.exports = function(RED) {
         // Look at other real nodes for some better ideas of what to do....
         var msg = {};
         msg.topic = this.topic;
-        msg.payload = "Hello world !"
+        // msg.payload = "Hello world !"
 
         // send out the message to the rest of the workspace.
         // ... this message will get sent at startup so you may not see it in a debug node.
-        this.send(msg);
+        // this.send(msg);
+        msg.payload = {};
 
-        // respond to inputs....
-        this.on('input', function (msg) {
+        if(apiKey != undefined &&
+           nodeKey != undefined &&
+           skuNumber != undefined) {
 
-          msg.payload.product = {};
+            var endpoint = 'api.webservices-rs.com';
 
-          if(msg.payload.apiKey != undefined &&
-             msg.payload.nodeKey != undefined &&
-             msg.payload.skuNumber != undefined) {
+            var postData = querystring.stringify({
+              'Sku': skuNumber,
+              'Quantity': '',
+              'ApiKey': apiKey,
+              'Node': nodeKey
+            });
 
-              var endpoint = 'api.webservices-rs.com';
+            var options = {
+              hostname: endpoint,
+              port: 443,
+              path: '/api/product/get',
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(postData)
+              }
+            };
 
-              var postData = querystring.stringify({
-                'Sku': msg.payload.skuNumber,
-                'Quantity': '',
-                'ApiKey': msg.payload.apiKey,
-                'Node': msg.payload.nodeKey
+            var request = https.request(options, function(resp) {
+              // consume response body
+              resp.setEncoding('utf8');
+              resp.on('data', function(chunk) {
+                //return the Product to the user
+                msg.payload.product = JSON.parse(chunk);
+                node.send(msg);
               });
+              resp.on('end', function() {
+                console.log('end')
+              })
+            }).on('error', function(e) {
+              node.error('Got RS Components API error: ', e);
+            });
 
-              var options = {
-                hostname: endpoint,
-                port: 443,
-                path: '/api/product/get',
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'Content-Length': Buffer.byteLength(postData)
-                }
-              };
+            request.write(postData);
+            request.end();
 
-              var request = https.request(options, function(resp) {
-                console.log('Got response: ', res.statusCode);
-                // consume response body
-                resp.setEncoding('utf8');
-                resp.on('data', function(chunk) {
-                  //return the Product to the user
-                  msg.payload.product = chunk;
-                  return node.send(msg);
-                });
-                resp.on('end', function() {
-                  console.log('end')
-                })
-              }).on('error', function(e) {
-                console.log('Got error: ', e);
-              });
-
-              request.write(postData);
-              request.end();
-
-             }
-        });
+           }
 
         this.on("close", function() {
             // Called when the node is shutdown - eg on redeploy.
@@ -88,6 +85,13 @@ module.exports = function(RED) {
 
     // Register the node by name. This must be called before overriding any of the
     // Node functions.
-    RED.nodes.registerType("rs-product-api", RSComponentsApiNode);
+    console.log('about to register RS Components API Node');
+    RED.nodes.registerType("rs-product-api", RSComponentsApiNode, {
+      credentials: {
+        apikey: { type: 'text' },
+        nodekey: { type: 'text' },
+        skunumber: { type: 'text' }
+      }
+    });
 
 }

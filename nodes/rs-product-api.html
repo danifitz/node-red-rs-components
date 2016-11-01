@@ -1,15 +1,18 @@
 <script type="text/javascript">
     RED.nodes.registerType('rs-product-api',{
-        category: 'RS Components APIs',
-        color: '#a6bbcf',
+        category: 'RS_Components_APIs',
+        color: '#FFAAAA',
         defaults: {
-            apiKey: { value: ''},
-            nodeKey: { value: ''},
-            skuNumber: { value: ''}
+          name: { value: ""}
         },
-        inputs:3,
+        credentials: {
+          apikey: {type: 'text'},
+          nodekey: {type: 'text'},
+          skunumber: {type: 'text'}
+        },
+        inputs:0,
         outputs:1,
-        icon: "file.png",
+        icon: "arrow-in.png",
         label: function() {
             return this.name||"rs-product-api";
         }
@@ -18,16 +21,16 @@
 
 <script type="text/x-red" data-template-name="rs-product-api">
     <div class="form-row">
-        <label for="node-input-api-key"><i class="icon-tag"></i> API Key</label>
-        <input type="text" id="node-input-api-key" placeholder="Insert your RS Components API Key">
+        <label for="node-input-apikey"><i class="icon-tag"></i> API Key</label>
+        <input type="text" id="node-input-apikey" placeholder="Insert your RS Components API Key">
     </div>
     <div class="form-row">
-        <label for="node-input-node-key"><i class="icon-tag"></i> Node Key</label>
-        <input type="text" id="node-input-node-key" placeholder="Insert your RS Components Node Key">
+        <label for="node-input-nodekey"><i class="icon-tag"></i> Node Key</label>
+        <input type="text" id="node-input-nodekey" placeholder="Insert your RS Components Node Key">
     </div>
     <div class="form-row">
-        <label for="node-input-sku"><i class="icon-tag"></i> SKU number</label>
-        <input type="text" id="node-input-sku" placeholder="Insert the SKU number of the product">
+        <label for="node-input-skunumber"><i class="icon-tag"></i> SKU number</label>
+        <input type="text" id="node-input-skunumber" placeholder="Insert the SKU number of the product">
     </div>
 </script>
 
