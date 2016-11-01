@@ -20,8 +20,8 @@ var when = require("when");
 var cfenv = require("cfenv");
 var appEnv = cfenv.getAppEnv();
 
-var VCAP_APPLICATION = JSON.parse(process.env.VCAP_APPLICATION);
-var VCAP_SERVICES = JSON.parse(process.env.VCAP_SERVICES);
+// var VCAP_APPLICATION = JSON.parse(process.env.VCAP_APPLICATION);
+// var VCAP_SERVICES = JSON.parse(process.env.VCAP_SERVICES);
 
 var settings = module.exports = {
     uiPort: process.env.VCAP_APP_PORT || 1880,
@@ -74,9 +74,7 @@ if (process.env.NODE_RED_USERNAME && process.env.NODE_RED_PASSWORD) {
         }
     }
 }
-// Commenting out because Cloudant name will be hardcoded
-//settings.couchAppname = VCAP_APPLICATION['application_name'];
-//var storageServiceName = process.env.NODE_RED_STORAGE_NAME || new RegExp("^"+settings.couchAppname+".cloudantNoSQLDB");
+// Let's hardcode Cloudant DB name for now
 var storageServiceName = 'nodeRedCloudantNoSQLDB';
 var couchService = appEnv.getService(storageServiceName);
 console.log('cloudant service is', couchService);
@@ -87,5 +85,5 @@ if (!couchService) {
         console.log(" - using NODE_RED_STORAGE_NAME environment variable: "+process.env.NODE_RED_STORAGE_NAME);
     }
     throw new Error("No cloudant service found");
-}    
+}
 settings.couchUrl = couchService.credentials.url;
